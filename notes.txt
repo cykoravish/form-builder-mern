@@ -1,0 +1,10 @@
+I need more improvements in the application listed below.
+1. react-beautiful-dnd package is depricated use another suitable package and implement it in a beautiful way that provides best ui ux experience.
+2. seeing typescript red lines in zustant store fix them and resolve and this and import create like this {create}.
+3. useNewUrlParser and useUnifiedTopology has depricated.
+=>use latest features in the project
+=> this warning comming chunk-KDCVS43I.js?v=12cb55df:521 Warning: Connect(Droppable): Support for defaultProps will be removed from memo components in a future major release. Use JavaScript default parameters instead
+=> chunk-KDCVS43I.js?v=12cb55df:521 Warning: A component is changing an uncontrolled input to be controlled. This is likely caused by the value changing from undefined to a defined value, which should not happen.
+4. when the user submitting the form he's getting validation error because of wrong filling of form but i want you to make a functionality that user will not be able to submit the form if he didn't fill it properly and show the user by highliting what he need to add to submit the form and show proper toast notifications.
+5. also review all three categories code and if there is some issue fix tham and also if there is some scope of improvement that can provide good ui ux please implement it.
+6. Make the flow of whole application smooth and understandable easily for the users.

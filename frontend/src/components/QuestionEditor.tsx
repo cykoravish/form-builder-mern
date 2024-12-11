@@ -1,5 +1,8 @@
 import React from 'react'
 import { FormField } from '../types/form'
+import CategorizeEditor from './question-editors/CategorizeEditor'
+import ClozeEditor from './question-editors/ClozeEditor'
+import ComprehensionEditor from './question-editors/ComprehensionEditor'
 
 interface QuestionEditorProps {
   question: FormField
@@ -8,8 +11,17 @@ interface QuestionEditorProps {
 }
 
 const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, onUpdate, onRemove }) => {
-  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    onUpdate({ ...question, content: { ...question.content, text: e.target.value } })
+  const renderEditor = () => {
+    switch (question.type) {
+      case 'categorize':
+        return <CategorizeEditor question={question} onUpdate={onUpdate} />
+      case 'cloze':
+        return <ClozeEditor question={question} onUpdate={onUpdate} />
+      case 'comprehension':
+        return <ComprehensionEditor question={question} onUpdate={onUpdate} />
+      default:
+        return null
+    }
   }
 
   return (
@@ -23,14 +35,7 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({ question, onUpdate, onR
           Remove
         </button>
       </div>
-      <textarea
-        value={question.content.text || ''}
-        onChange={handleContentChange}
-        className="w-full p-2 border rounded"
-        rows={4}
-        placeholder={`Enter ${question.type} question content...`}
-      />
-      {/* Add more specific fields based on question type */}
+      {renderEditor()}
     </div>
   )
 }
