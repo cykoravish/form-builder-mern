@@ -1,0 +1,24 @@
+{
+  "name": "formbuilder",
+  "version": "1.0.0",
+  "description": "scalable api to build forms",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cykoravish"
+  },
+  "keywords": [
+    "form",
+    "builder"
+  ],
+  "author": "Ravish",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^3.1.7"
+  }
+}
