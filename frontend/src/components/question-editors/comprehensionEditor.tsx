@@ -1,48 +1,62 @@
-import React from 'react'
-import { ComprehensionQuestion } from '../../types/form'
-import { toast } from 'react-hot-toast'
+import React from "react";
+import { ComprehensionQuestion } from "../../types/form";
+import { toast } from "react-hot-toast";
 
 interface ComprehensionEditorProps {
-  question: ComprehensionQuestion
-  onUpdate: (question: ComprehensionQuestion) => void
+  question: ComprehensionQuestion;
+  onUpdate: (question: ComprehensionQuestion) => void;
 }
 
-const ComprehensionEditor: React.FC<ComprehensionEditorProps> = ({ question, onUpdate }) => {
+const ComprehensionEditor: React.FC<ComprehensionEditorProps> = ({
+  question,
+  onUpdate,
+}) => {
+  console.log("questionnn:", question);
+  console.log("onUpdate:",onUpdate);
   const handlePassageChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    console.log("Passage change triggered: ", e.target.value);
     onUpdate({
       ...question,
       passage: e.target.value,
-    })
-  }
+    });
+  };
 
   const addQuestion = () => {
+    console.log("add question called");
     if (!question.passage.trim()) {
-      toast.error('Please add a passage before adding questions.')
-      return
+      toast.error("Please add a passage before adding questions.");
+      return;
     }
     onUpdate({
       ...question,
-      questions: [...question.questions, { question: '', options: ['', '', '', ''], correctAnswer: '' }],
-    })
-  }
+      questions: [
+        ...question.questions,
+        { question: "", options: ["", "", "", ""], correctAnswer: "" },
+      ],
+    });
+  };
 
   const updateQuestion = (index: number, field: string, value: string) => {
-    const newQuestions = [...question.questions]
-    newQuestions[index] = { ...newQuestions[index], [field]: value }
+    const newQuestions = [...question.questions];
+    newQuestions[index] = { ...newQuestions[index], [field]: value };
     onUpdate({
       ...question,
       questions: newQuestions,
-    })
-  }
+    });
+  };
 
-  const updateOption = (questionIndex: number, optionIndex: number, value: string) => {
-    const newQuestions = [...question.questions]
-    newQuestions[questionIndex].options[optionIndex] = value
+  const updateOption = (
+    questionIndex: number,
+    optionIndex: number,
+    value: string
+  ) => {
+    const newQuestions = [...question.questions];
+    newQuestions[questionIndex].options[optionIndex] = value;
     onUpdate({
       ...question,
       questions: newQuestions,
-    })
-  }
+    });
+  };
 
   return (
     <div className="space-y-4">
@@ -60,7 +74,9 @@ const ComprehensionEditor: React.FC<ComprehensionEditorProps> = ({ question, onU
             <input
               type="text"
               value={q.question}
-              onChange={(e) => updateQuestion(qIndex, 'question', e.target.value)}
+              onChange={(e) =>
+                updateQuestion(qIndex, "question", e.target.value)
+              }
               className="w-full p-2 border rounded mb-2"
               placeholder={`Question ${qIndex + 1}`}
             />
@@ -76,7 +92,9 @@ const ComprehensionEditor: React.FC<ComprehensionEditorProps> = ({ question, onU
             ))}
             <select
               value={q.correctAnswer}
-              onChange={(e) => updateQuestion(qIndex, 'correctAnswer', e.target.value)}
+              onChange={(e) =>
+                updateQuestion(qIndex, "correctAnswer", e.target.value)
+              }
               className="w-full p-2 border rounded"
             >
               <option value="">Select Correct Answer</option>
@@ -90,15 +108,18 @@ const ComprehensionEditor: React.FC<ComprehensionEditorProps> = ({ question, onU
         ))}
         <button
           type="button"
-          onClick={addQuestion}
+          disabled={false}
+          onClick={() => {
+            alert("button clicked");
+            addQuestion();
+          }}
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
         >
-          Add Question
+          Add Questionnn
         </button>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default ComprehensionEditor
-
+export default ComprehensionEditor;

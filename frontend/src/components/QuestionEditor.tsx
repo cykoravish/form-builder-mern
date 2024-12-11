@@ -15,6 +15,8 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
   onUpdate,
   onRemove,
 }) => {
+  console.log("QuestionEditor - Received Question:", question);
+  console.log("QuestionEditor - onUpdate type:", typeof onUpdate);
   const renderEditor = () => {
     switch (question.type) {
       case "categorize":
@@ -22,7 +24,20 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
       case "cloze":
         return <ClozeEditor question={question} onUpdate={onUpdate} />;
       case "comprehension":
-        return <ComprehensionEditor question={question} onUpdate={onUpdate} />;
+        console.log("Comprehension Question Details:", question);
+        console.log("onUpdate function:", onUpdate);
+        return (
+          <ComprehensionEditor
+            question={question}
+            onUpdate={(updatedQuestion) => {
+              console.log(
+                "QuestionEditor - Attempting to update:",
+                updatedQuestion
+              );
+              onUpdate(updatedQuestion);
+            }}
+          />
+        );
       default:
         return null;
     }
@@ -35,7 +50,10 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
           {question.type} Question
         </h3>
         <button
-          onClick={onRemove}
+          onClick={() => {
+            console.log("remove button clicked");
+            onRemove();
+          }}
           className="text-red-600 hover:text-red-800 transition-colors"
         >
           Remove

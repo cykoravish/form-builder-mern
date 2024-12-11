@@ -17,6 +17,7 @@ export const useFormStore = create<FormStore>((set) => ({
     set((state) => ({ form: { ...state.form, questions: [...state.form.questions, question] } })),
   updateQuestion: (index, question) =>
     set((state) => {
+      console.log("update question triggered")
       const newQuestions = [...state.form.questions]
       newQuestions[index] = question
       return { form: { ...state.form, questions: newQuestions } }
