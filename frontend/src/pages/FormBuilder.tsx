@@ -22,19 +22,20 @@ import { createForm } from "../services/formService";
 import { QuestionType, FormField } from "../types/form";
 import QuestionEditor from "../components/QuestionEditor";
 
-const SortableQuestion = ({
-  id,
-  question,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  index,
-  onUpdate,
-  onRemove,
-}: {
+interface SortableQuestionProps {
   id: string;
   question: FormField;
   index: number;
   onUpdate: (updatedQuestion: FormField) => void;
   onRemove: () => void;
+}
+
+const SortableQuestion: React.FC<SortableQuestionProps> = ({
+  id,
+  question,
+  index,
+  onUpdate,
+  onRemove,
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: id });
@@ -45,19 +46,22 @@ const SortableQuestion = ({
   };
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-      >
-        <QuestionEditor
-          question={question}
-          onUpdate={onUpdate}
-          onRemove={onRemove}
-        />
-      </motion.div>
-    </div>
+    <>
+      {/* <div ref={setNodeRef} style={style} {...attributes} {...listeners}> */}
+      <div ref={setNodeRef} style={style} {...attributes}>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <QuestionEditor
+            question={question}
+            onUpdate={onUpdate}
+            onRemove={onRemove}
+          />
+        </motion.div>
+      </div>
+    </>
   );
 };
 
@@ -71,7 +75,7 @@ const FormBuilder: React.FC = () => {
     removeQuestion,
     reorderQuestions,
   } = useFormStore();
-  console.log("form: ", form)
+  console.log("form: ", form);
   const [currentStep, setCurrentStep] = useState(1);
 
   const sensors = useSensors(
@@ -96,7 +100,7 @@ const FormBuilder: React.FC = () => {
       default:
         return; // Don't add if type is invalid
     }
-    console.log(newQuestion);
+
     addQuestion(newQuestion);
     toast.success(`New ${type} question added. Please fill in the details.`);
   };

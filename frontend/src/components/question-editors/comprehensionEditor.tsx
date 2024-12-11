@@ -1,5 +1,5 @@
-import React from "react";
-import { ComprehensionQuestion } from "../../types/form";
+import React, { useCallback } from "react";
+import { ComprehensionQuestion, FormField } from "../../types/form";
 import { toast } from "react-hot-toast";
 
 interface ComprehensionEditorProps {
@@ -11,57 +11,100 @@ const ComprehensionEditor: React.FC<ComprehensionEditorProps> = ({
   question,
   onUpdate,
 }) => {
-  console.log("questionnn:", question);
-  console.log("onUpdate:",onUpdate);
-  const handlePassageChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    console.log("Passage change triggered: ", e.target.value);
-    onUpdate({
-      ...question,
-      passage: e.target.value,
-    });
-  };
+  const handlePassageChange = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      console.log("Passage change triggered: ", e.target.value);
 
-  const addQuestion = () => {
-    console.log("add question called");
-    if (!question.passage.trim()) {
+      // Ensure type compatibility
+      const updatedQuestion: FormField = {
+        ...question,
+        passage: e.target.value,
+      };
+
+      onUpdate(updatedQuestion);
+    },
+    [question, onUpdate]
+  );
+
+  const addQuestion = useCallback(() => {
+    console.log("Add question triggered");
+    if (!question.passage?.trim()) {
       toast.error("Please add a passage before adding questions.");
       return;
     }
-    onUpdate({
+
+    // Ensure type compatibility
+    const updatedQuestion: FormField = {
       ...question,
       questions: [
-        ...question.questions,
-        { question: "", options: ["", "", "", ""], correctAnswer: "" },
+        ...(question.questions || []),
+        {
+          question: "",
+          options: ["", "", "", ""],
+          correctAnswer: "",
+        },
       ],
-    });
-  };
+    };
 
-  const updateQuestion = (index: number, field: string, value: string) => {
-    const newQuestions = [...question.questions];
-    newQuestions[index] = { ...newQuestions[index], [field]: value };
-    onUpdate({
-      ...question,
-      questions: newQuestions,
-    });
-  };
+    onUpdate(updatedQuestion);
+  }, [question, onUpdate]);
 
-  const updateOption = (
-    questionIndex: number,
-    optionIndex: number,
-    value: string
-  ) => {
-    const newQuestions = [...question.questions];
-    newQuestions[questionIndex].options[optionIndex] = value;
-    onUpdate({
-      ...question,
-      questions: newQuestions,
-    });
-  };
+  const updateQuestion = useCallback(
+    (questionIndex: number, field: string, value: string) => {
+      console.log(
+        `Updating question ${questionIndex}, field: ${field}, value: ${value}`
+      );
+
+      const newQuestions = [...(question.questions || [])];
+
+      newQuestions[questionIndex] = {
+        ...newQuestions[questionIndex],
+        [field]: value,
+      };
+
+      const updatedQuestion: FormField = {
+        ...question,
+        questions: newQuestions,
+      };
+
+      onUpdate(updatedQuestion);
+    },
+    [question, onUpdate]
+  );
+
+  // Update a specific option within a question
+  const updateOption = useCallback(
+    (questionIndex: number, optionIndex: number, value: string) => {
+      console.log(
+        `Updating option for question ${questionIndex}, option ${optionIndex}, value: ${value}`
+      );
+
+      const newQuestions = [...(question.questions || [])];
+
+      if (!newQuestions[questionIndex]) {
+        newQuestions[questionIndex] = {
+          question: "",
+          options: ["", "", "", ""],
+          correctAnswer: "",
+        };
+      }
+
+      newQuestions[questionIndex].options[optionIndex] = value;
+
+      const updatedQuestion: FormField = {
+        ...question,
+        questions: newQuestions,
+      };
+
+      onUpdate(updatedQuestion);
+    },
+    [question, onUpdate]
+  );
 
   return (
     <div className="space-y-4">
       <textarea
-        value={question.passage}
+        value={question.passage || ""}
         onChange={handlePassageChange}
         className="w-full p-2 border rounded"
         rows={6}
@@ -69,7 +112,7 @@ const ComprehensionEditor: React.FC<ComprehensionEditorProps> = ({
       />
       <div>
         <h4 className="font-medium mb-2">Questions</h4>
-        {question.questions.map((q, qIndex) => (
+        {(question.questions || []).map((q, qIndex) => (
           <div key={qIndex} className="mb-4 p-4 border rounded">
             <input
               type="text"
@@ -108,11 +151,7 @@ const ComprehensionEditor: React.FC<ComprehensionEditorProps> = ({
         ))}
         <button
           type="button"
-          disabled={false}
-          onClick={() => {
-            alert("button clicked");
-            addQuestion();
-          }}
+          onClick={addQuestion}
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
         >
           Add Questionnn
