@@ -1,5 +1,6 @@
 import React from 'react'
 import { ClozeQuestion } from '../../types/form'
+import { toast } from 'react-hot-toast'
 
 interface ClozeEditorProps {
   question: ClozeQuestion
@@ -24,6 +25,10 @@ const ClozeEditor: React.FC<ClozeEditorProps> = ({ question, onUpdate }) => {
   }
 
   const addBlank = () => {
+    if (question.text.split('[...]').length <= question.blanks.length + 1) {
+      toast.error('Please add more [...] placeholders in the text before adding new blanks.')
+      return
+    }
     onUpdate({
       ...question,
       blanks: [...question.blanks, ''],
@@ -46,7 +51,7 @@ const ClozeEditor: React.FC<ClozeEditorProps> = ({ question, onUpdate }) => {
             key={index}
             type="text"
             value={blank}
-            onChange={(e) => handleBlankChange(index, e.target.value)}
+            onChange={(e) => handleBlankChange(index, e.target.value.trimStart())}
             className="w-full p-2 border rounded mb-2"
             placeholder={`Blank ${index + 1}`}
           />

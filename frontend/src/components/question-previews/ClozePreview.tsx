@@ -5,9 +5,10 @@ interface ClozePreviewProps {
   question: ClozeQuestion
   answer: string[]
   onAnswerChange: (answer: string[]) => void
+  error?: string
 }
 
-const ClozePreview: React.FC<ClozePreviewProps> = ({ question, answer, onAnswerChange }) => {
+const ClozePreview: React.FC<ClozePreviewProps> = ({ question, answer, onAnswerChange, error }) => {
   const [blanks, setBlanks] = useState<string[]>(answer || question.blanks.map(() => ''))
 
   useEffect(() => {
@@ -30,7 +31,7 @@ const ClozePreview: React.FC<ClozePreviewProps> = ({ question, answer, onAnswerC
             type="text"
             value={blanks[index]}
             onChange={(e) => handleBlankChange(index, e.target.value)}
-            className="border-b border-gray-300 focus:border-blue-500 outline-none px-1 mx-1 w-24"
+            className="border-b-2 border-gray-300 focus:border-blue-500 outline-none px-1 mx-1 w-24 transition-colors duration-200"
           />
         )}
       </React.Fragment>
@@ -39,7 +40,8 @@ const ClozePreview: React.FC<ClozePreviewProps> = ({ question, answer, onAnswerC
 
   return (
     <div>
-      <p className="mb-4">{renderClozeText()}</p>
+      <p className="mb-4 text-lg leading-relaxed">{renderClozeText()}</p>
+      {error && <p className="text-red-500 mt-2">{error}</p>}
     </div>
   )
 }

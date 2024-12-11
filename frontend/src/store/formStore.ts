@@ -1,4 +1,4 @@
-import {create} from 'zustand'
+import { create } from 'zustand'
 import { Form, FormField } from '../types/form'
 
 interface FormStore {

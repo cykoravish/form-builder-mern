@@ -3,7 +3,6 @@ import { FormField } from '../types/form'
 import CategorizeEditor from './question-editors/CategorizeEditor'
 import ClozeEditor from './question-editors/ClozeEditor'
 import ComprehensionEditor from './question-editors/ComprehensionEditor'
-
 interface QuestionEditorProps {
   question: FormField
   onUpdate: (question: FormField) => void

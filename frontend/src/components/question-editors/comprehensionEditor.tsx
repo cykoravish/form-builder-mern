@@ -1,5 +1,6 @@
 import React from 'react'
 import { ComprehensionQuestion } from '../../types/form'
+import { toast } from 'react-hot-toast'
 
 interface ComprehensionEditorProps {
   question: ComprehensionQuestion
@@ -15,6 +16,10 @@ const ComprehensionEditor: React.FC<ComprehensionEditorProps> = ({ question, onU
   }
 
   const addQuestion = () => {
+    if (!question.passage.trim()) {
+      toast.error('Please add a passage before adding questions.')
+      return
+    }
     onUpdate({
       ...question,
       questions: [...question.questions, { question: '', options: ['', '', '', ''], correctAnswer: '' }],
@@ -55,7 +60,7 @@ const ComprehensionEditor: React.FC<ComprehensionEditorProps> = ({ question, onU
             <input
               type="text"
               value={q.question}
-              onChange={(e) => updateQuestion(qIndex, 'question', e.target.value)}
+              onChange={(e) => updateQuestion(qIndex, 'question', e.target.value.trimStart())}
               className="w-full p-2 border rounded mb-2"
               placeholder={`Question ${qIndex + 1}`}
             />
@@ -64,7 +69,7 @@ const ComprehensionEditor: React.FC<ComprehensionEditorProps> = ({ question, onU
                 key={oIndex}
                 type="text"
                 value={option}
-                onChange={(e) => updateOption(qIndex, oIndex, e.target.value)}
+                onChange={(e) => updateOption(qIndex, oIndex, e.target.value.trimStart())}
                 className="w-full p-2 border rounded mb-2"
                 placeholder={`Option ${oIndex + 1}`}
               />

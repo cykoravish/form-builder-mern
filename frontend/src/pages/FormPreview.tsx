@@ -11,6 +11,7 @@ const FormPreview: React.FC = () => {
   const { formId } = useParams<{ formId: string }>()
   const [form, setForm] = useState<Form | null>(null)
   const [answers, setAnswers] = useState<Record<string, any>[]>([])
+  const [errors, setErrors] = useState<Record<number, string>>({})
 
   useEffect(() => {
     const fetchForm = async () => {
@@ -33,6 +34,24 @@ const FormPreview: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    const newErrors: Record<number, string> = {}
+
+    form.questions.forEach((question, index) => {
+      if (question.type === 'categorize' && (!answers[index] || Object.keys(answers[index]).length === 0)) {
+        newErrors[index] = 'Please categorize all items'
+      } else if (question.type === 'cloze' && (!answers[index] || answers[index].some((blank: string) => blank === ''))) {
+        newErrors[index] = 'Please fill in all blanks'
+      } else if (question.type === 'comprehension' && (!answers[index] || Object.keys(answers[index]).length !== question.questions.length)) {
+        newErrors[index] = 'Please answer all questions'
+      }
+    })
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors)
+      toast.error('Please fill in all required fields')
+      return
+    }
+
     try {
       await submitFormResponse(formId!, { formId: formId!, answers })
       toast.success('Form submitted successfully!')
@@ -59,6 +78,7 @@ const FormPreview: React.FC = () => {
                 question={question}
                 answer={answers[index]}
                 onAnswerChange={(answer) => handleAnswerChange(index, answer)}
+                error={errors[index]}
               />
             )}
             {question.type === 'cloze' && (
@@ -66,6 +86,7 @@ const FormPreview: React.FC = () => {
                 question={question}
                 answer={answers[index]}
                 onAnswerChange={(answer) => handleAnswerChange(index, answer)}
+                error={errors[index]}
               />
             )}
             {question.type === 'comprehension' && (
@@ -73,6 +94,7 @@ const FormPreview: React.FC = () => {
                 question={question}
                 answer={answers[index]}
                 onAnswerChange={(answer) => handleAnswerChange(index, answer)}
+                error={errors[index]}
               />
             )}
           </div>

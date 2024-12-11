@@ -1,5 +1,6 @@
 import React from 'react'
 import { CategorizeQuestion } from '../../types/form'
+import { toast } from 'react-hot-toast'
 
 interface CategorizeEditorProps {
   question: CategorizeQuestion
@@ -24,9 +25,13 @@ const CategorizeEditor: React.FC<CategorizeEditorProps> = ({ question, onUpdate 
   }
 
   const addItem = () => {
+    if (question.categories.length === 0) {
+      toast.error('Please add at least one category before adding items.')
+      return
+    }
     onUpdate({
       ...question,
-      items: [...question.items, { text: '', category: '' }],
+      items: [...question.items, { text: '', category: question.categories[0] }],
     })
   }
 
@@ -44,7 +49,7 @@ const CategorizeEditor: React.FC<CategorizeEditorProps> = ({ question, onUpdate 
       <input
         type="text"
         value={question.question}
-        onChange={(e) => onUpdate({ ...question, question: e.target.value })}
+        onChange={(e) => onUpdate({ ...question, question: e.target.value.trimStart() })}
         className="w-full p-2 border rounded"
         placeholder="Enter question"
       />
@@ -55,7 +60,7 @@ const CategorizeEditor: React.FC<CategorizeEditorProps> = ({ question, onUpdate 
             key={index}
             type="text"
             value={category}
-            onChange={(e) => updateCategory(index, e.target.value)}
+            onChange={(e) => updateCategory(index, e.target.value.trimStart())}
             className="w-full p-2 border rounded mb-2"
             placeholder={`Category ${index + 1}`}
           />
@@ -75,7 +80,7 @@ const CategorizeEditor: React.FC<CategorizeEditorProps> = ({ question, onUpdate 
             <input
               type="text"
               value={item.text}
-              onChange={(e) => updateItem(index, 'text', e.target.value)}
+              onChange={(e) => updateItem(index, 'text', e.target.value.trimStart())}
               className="flex-grow p-2 border rounded"
               placeholder={`Item ${index + 1}`}
             />
