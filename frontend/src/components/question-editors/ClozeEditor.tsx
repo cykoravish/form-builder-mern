@@ -51,7 +51,7 @@ const ClozeEditor: React.FC<ClozeEditorProps> = ({ question, onUpdate }) => {
             key={index}
             type="text"
             value={blank}
-            onChange={(e) => handleBlankChange(index, e.target.value.trimStart())}
+            onChange={(e) => handleBlankChange(index, e.target.value)}
             className="w-full p-2 border rounded mb-2"
             placeholder={`Blank ${index + 1}`}
           />

@@ -1,5 +1,0 @@
-In the form builder route i am facing some issue listed below:
-1. Not able to type anything in the category question and other input fields of adding questions etc.
-2. User must fill the category question before trying to create another one you have to validate it and than let him allow to click on another category to add question and show poper toast notification to guide the user correctly
-3.if you have added some drag and drop functionality in preview and form builder let the user know about it and make everything responsive andfix all the issues. Give a best ui ux experience. make the form builder woek correctly.
-4. give a final toch to the application by fixing all the issue and improve everything you think there is some scope of improvement. just make sure no error come.

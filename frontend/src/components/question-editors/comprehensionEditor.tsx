@@ -60,7 +60,7 @@ const ComprehensionEditor: React.FC<ComprehensionEditorProps> = ({ question, onU
             <input
               type="text"
               value={q.question}
-              onChange={(e) => updateQuestion(qIndex, 'question', e.target.value.trimStart())}
+              onChange={(e) => updateQuestion(qIndex, 'question', e.target.value)}
               className="w-full p-2 border rounded mb-2"
               placeholder={`Question ${qIndex + 1}`}
             />
@@ -69,7 +69,7 @@ const ComprehensionEditor: React.FC<ComprehensionEditorProps> = ({ question, onU
                 key={oIndex}
                 type="text"
                 value={option}
-                onChange={(e) => updateOption(qIndex, oIndex, e.target.value.trimStart())}
+                onChange={(e) => updateOption(qIndex, oIndex, e.target.value)}
                 className="w-full p-2 border rounded mb-2"
                 placeholder={`Option ${oIndex + 1}`}
               />

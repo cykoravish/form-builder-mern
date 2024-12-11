@@ -49,9 +49,9 @@ const CategorizeEditor: React.FC<CategorizeEditorProps> = ({ question, onUpdate 
       <input
         type="text"
         value={question.question}
-        onChange={(e) => onUpdate({ ...question, question: e.target.value.trimStart() })}
+        onChange={(e) => onUpdate({ ...question, question: e.target.value })}
         className="w-full p-2 border rounded"
-        placeholder="Enter question"
+        placeholder="Enter categorize question"
       />
       <div>
         <h4 className="font-medium mb-2">Categories</h4>
@@ -60,7 +60,7 @@ const CategorizeEditor: React.FC<CategorizeEditorProps> = ({ question, onUpdate 
             key={index}
             type="text"
             value={category}
-            onChange={(e) => updateCategory(index, e.target.value.trimStart())}
+            onChange={(e) => updateCategory(index, e.target.value)}
             className="w-full p-2 border rounded mb-2"
             placeholder={`Category ${index + 1}`}
           />
@@ -80,7 +80,7 @@ const CategorizeEditor: React.FC<CategorizeEditorProps> = ({ question, onUpdate 
             <input
               type="text"
               value={item.text}
-              onChange={(e) => updateItem(index, 'text', e.target.value.trimStart())}
+              onChange={(e) => updateItem(index, 'text', e.target.value)}
               className="flex-grow p-2 border rounded"
               placeholder={`Item ${index + 1}`}
             />

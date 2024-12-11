@@ -10,7 +10,6 @@ import { createForm } from '../services/formService'
 import { QuestionType, FormField } from '../types/form'
 import QuestionEditor from '../components/QuestionEditor'
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const SortableQuestion = ({ id, question, index, onUpdate, onRemove }: { id: string; question: FormField; index: number; onUpdate: (updatedQuestion: FormField) => void; onRemove: () => void }) => {
   const {
     attributes,
@@ -55,20 +54,23 @@ const FormBuilder: React.FC = () => {
   )
 
   const handleAddQuestion = (type: QuestionType) => {
-    let newQuestion: FormField
+    let newQuestion: FormField;
     switch (type) {
       case 'categorize':
-        newQuestion = { type, question: '', categories: [], items: [] }
-        break
+        newQuestion = { type, question: '', categories: [], items: [] };
+        break;
       case 'cloze':
-        newQuestion = { type, text: '', blanks: [] }
-        break
+        newQuestion = { type, text: '', blanks: [] };
+        break;
       case 'comprehension':
-        newQuestion = { type, passage: '', questions: [] }
-        break
+        newQuestion = { type, passage: '', questions: [] };
+        break;
+      default:
+        return; // Don't add if type is invalid
     }
-    addQuestion(newQuestion)
-    toast.success(`New ${type} question added.`)
+
+    addQuestion(newQuestion);
+    toast.success(`New ${type} question added. Please fill in the details.`);
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -86,12 +88,10 @@ const FormBuilder: React.FC = () => {
       toast.success('Form created successfully!')
       navigate(`/preview/${createdForm._id}`)
     } catch (error) {
-      console.log("error:", error)
       toast.error('Failed to create form')
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleDragEnd = (event: any) => {
     const { active, over } = event
 
@@ -149,7 +149,7 @@ const FormBuilder: React.FC = () => {
             <input
               type="url"
               id="headerImage"
-              value={form.headerImage}
+              value={form.headerImage || ''}
               onChange={(e) => setForm({ ...form, headerImage: e.target.value })}
               className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
             />
