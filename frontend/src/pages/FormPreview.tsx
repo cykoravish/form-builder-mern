@@ -42,60 +42,13 @@ const FormPreview: React.FC = () => {
     fetchForm();
   }, [formId]);
 
-  // const handleAnswerChange = (index: number, answer: unknown) => {
-  //   const newAnswers = [...answers]
-  //   newAnswers[index] = answer
-  //   setAnswers(newAnswers)
-  // }
-
   const handleAnswerChange = (index: number, answer: unknown) => {
     const newAnswers = [...answers];
 
-    // Cast 'answer' to the expected type
     newAnswers[index] = answer as string[] | Record<number, string>;
 
     setAnswers(newAnswers);
   };
-
-  // const validateForm = (
-  //   questions: FormField[],
-  //   answers: unknown[]
-  // ): Record<number, string> => {
-  //   const newErrors: Record<number, string> = {};
-
-  //   questions.forEach((question, index) => {
-  //     switch (question.type) {
-  //       case "categorize": {
-  //         const categorizeAnswer = answers[index] as Record<string, string>;
-  //         if (!categorizeAnswer || Object.keys(categorizeAnswer).length === 0) {
-  //           newErrors[index] = "Please categorize all items";
-  //         }
-  //         break;
-  //       }
-  //       case "cloze": {
-  //         const clozeAnswer = answers[index] as string[];
-  //         if (!clozeAnswer || clozeAnswer.some((blank) => blank === "")) {
-  //           newErrors[index] = "Please fill in all blanks";
-  //         }
-  //         break;
-  //       }
-  //       case "comprehension": {
-  //         const comprehensionQuestion = question as ComprehensionQuestion;
-  //         const comprehensionAnswer = answers[index] as Record<number, string>;
-  //         if (
-  //           !comprehensionAnswer ||
-  //           Object.keys(comprehensionAnswer).length !==
-  //             comprehensionQuestion.questions.length
-  //         ) {
-  //           newErrors[index] = "Please answer all comprehension questions";
-  //         }
-  //         break;
-  //       }
-  //     }
-  //   });
-
-  //   return newErrors;
-  // };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -105,19 +58,8 @@ const FormPreview: React.FC = () => {
       return;
     }
 
-    // const newErrors = validateForm(form.questions, answers);
-
-    // if (Object.keys(newErrors).length > 0) {
-    //   setErrors(newErrors);
-    //   toast.error("Please fill in all required fields");
-    //   return;
-    // }
-
     try {
-      // const formResponse: FormResponse = {
-      //   formId: formId!,
-      //   answers: answers as Record<string, unknown>[]
-      // }
+    
       const formResponse: FormResponse = {
         formId: formId!,
         answers: answers as unknown as Record<string, unknown>[],
