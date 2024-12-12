@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { toast } from "react-hot-toast";
+import defaultImage from "../assets/defaultImage.jpg";
 import {
   DndContext,
   closestCenter,
@@ -289,13 +290,20 @@ const FormBuilder: React.FC = () => {
           <h2 className="text-2xl font-bold mb-4">Form Preview</h2>
           <div className="bg-white p-6 rounded-lg shadow-md">
             <h3 className="text-xl font-bold mb-4">{form.title}</h3>
-            {form.headerImage && (
+            {form.headerImage ? (
               <img
                 src={form.headerImage}
-                alt="Form header"
-                className="w-full mb-6 rounded-lg shadow-sm"
+                alt="header image"
+                className="w-full max-w-sm mx-auto mb-6 rounded-lg shadow-sm object-cover"
+              />
+            ) : (
+              <img
+                src={defaultImage}
+                alt="header image"
+                className="w-full max-w-sm mx-auto mb-6 rounded-lg shadow-sm object-cover"
               />
             )}
+
             {form.questions.map((question, index) => (
               <div key={index} className="mb-6 p-4 bg-gray-50 rounded-md">
                 <QuestionEditor
