@@ -1,7 +1,23 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useCallback, useMemo } from 'react'
 import { ClozeQuestion } from '../../types/form'
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent, DragOverlay } from '@dnd-kit/core'
-import { SortableContext, useSortable, sortableKeyboardCoordinates } from '@dnd-kit/sortable'
+import { 
+  DndContext, 
+  closestCenter, 
+  KeyboardSensor, 
+  PointerSensor, 
+  useSensor, 
+  useSensors, 
+  DragEndEvent, 
+  DragStartEvent,
+  DragOverlay,
+  DragMoveEvent
+} from '@dnd-kit/core'
+import { 
+  SortableContext, 
+  useSortable,
+  arrayMove,
+  sortableKeyboardCoordinates 
+} from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
 interface ClozePreviewProps {
@@ -11,7 +27,11 @@ interface ClozePreviewProps {
   error?: string
 }
 
-const DraggableOption: React.FC<{ id: string; children: React.ReactNode }> = ({ id, children }) => {
+const DraggableOption: React.FC<{ 
+  id: string; 
+  children: React.ReactNode; 
+  isDragging?: boolean 
+}> = ({ id, children, isDragging }) => {
   const {
     attributes,
     listeners,
@@ -23,7 +43,10 @@ const DraggableOption: React.FC<{ id: string; children: React.ReactNode }> = ({ 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-  };
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+  } as React.CSSProperties;
 
   return (
     <span
@@ -31,117 +54,183 @@ const DraggableOption: React.FC<{ id: string; children: React.ReactNode }> = ({ 
       {...attributes}
       {...listeners}
       style={style}
-      className="bg-blue-100 px-2 py-1 rounded cursor-move inline-block m-1"
+      className={`
+        bg-blue-100 px-2 py-1 rounded cursor-move inline-block m-1
+        ${isDragging ? 'opacity-50' : ''}
+        max-w-[200px]
+      `}
     >
       {children}
     </span>
   );
 };
 
-const ClozePreview: React.FC<ClozePreviewProps> = ({ question, answer, onAnswerChange, error }) => {
-  console.log("coze Q, : ", question)
-  const [blanks, setBlanks] = useState<string[]>(answer || question.blanks.map(() => ''));
-  const [options, setOptions] = useState<string[]>(question.blanks || []);
-  const [activeId, setActiveId] = useState<string | null>(null);
-  // console.log("blanks: ", blanks)
-  // console.log("options: ",options)
-  // console.log("activeId: ",activeId)
+const ClozePreview: React.FC<ClozePreviewProps> = ({ 
+  question, 
+  answer, 
+  onAnswerChange, 
+  error 
+}) => {
+  // Initialize state with options from the question
+  const [blanks, setBlanks] = useState<string[]>(
+    answer || question.blanks.map(() => '')
+  );
+  
+  // Track used options separately
+  const [usedOptions, setUsedOptions] = useState<string[]>([]);
 
+  // Compute available options
+  const availableOptions = useMemo(() => {
+    return question.blanks.filter(option => !usedOptions.includes(option));
+  }, [question.blanks, usedOptions]);
+
+  const [activeId, setActiveId] = useState<string | null>(null);
+
+  // Sensors for drag and drop
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 10
+      }
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
 
-  useEffect(() => {
-    if (JSON.stringify(blanks) !== JSON.stringify(answer)) {
-      onAnswerChange(blanks);
-    }
-  }, [blanks, answer, onAnswerChange]);
+  // Callback to handle answer changes
+  const handleAnswerChange = useCallback((newBlanks: string[]) => {
+    onAnswerChange(newBlanks);
+  }, [onAnswerChange]);
 
-  const handleDragStart = (event: DragEndEvent) => {
-    const { active } = event;
-    setActiveId(active.id as string);
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(event.active.id as string);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
+    const draggedOption = active.id as string;
 
-    if (over && active.id !== over.id) {
-      const activeIndex = options.indexOf(active.id as string);
-      const overIndex = blanks.findIndex(blank => blank === over.id);
+    if (over) {
+      const blankIndex = blanks.findIndex(blank => blank === '');
+      const existingIndex = blanks.findIndex(blank => blank === draggedOption);
+      
+      if (blankIndex !== -1 && existingIndex === -1) {
+        // Update blanks
+        const newBlanks = [...blanks];
+        newBlanks[blankIndex] = draggedOption;
+        setBlanks(newBlanks);
 
-      if (activeIndex !== -1 && overIndex !== -1) {
-        setBlanks(prev => {
-          const newBlanks = [...prev];
-          newBlanks[overIndex] = active.id as string;
-          return newBlanks;
-        });
+        // Track used options
+        setUsedOptions(prev => [...prev, draggedOption]);
 
-        setOptions(prev => prev.filter(option => option !== active.id));
+        // Trigger parent component update
+        handleAnswerChange(newBlanks);
       }
     }
+
     setActiveId(null);
+  };
+
+  // New method to handle rearranging filled blanks
+  const handleBlankDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const activeIndex = blanks.findIndex(item => item === active.id);
+      const overIndex = blanks.findIndex(item => item === over.id);
+
+      if (activeIndex !== -1 && overIndex !== -1) {
+        const newBlanks = arrayMove(blanks, activeIndex, overIndex);
+        setBlanks(newBlanks);
+        handleAnswerChange(newBlanks);
+      }
+    }
   };
 
   const renderClozeText = () => {
     const parts = question.text.split(/\[\.\.\.]/g);
     return (
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-        <SortableContext items={blanks}>
-          {parts.map((part, index) => (
-            <React.Fragment key={index}>
-              {part}
-              {index < blanks.length && (
-                <span
-                  className="border-b-2 border-gray-300 inline-block min-w-[100px] min-h-[30px] align-bottom mx-1"
-                >
-                  {blanks[index] ? (
-                    <DraggableOption id={blanks[index]}>{blanks[index]}</DraggableOption>
-                  ) : null}
-                </span>
-              )}
-            </React.Fragment>
-          ))}
-        </SortableContext>
-        <DragOverlay>
-          {activeId ? (
-            <span className="bg-blue-100 px-2 py-1 rounded cursor-move inline-block m-1">
-              {activeId}
-            </span>
-          ) : null}
-        </DragOverlay>
-      </DndContext>
+      <div>
+        {parts.map((part, index) => (
+          <React.Fragment key={index}>
+            {part}
+            {index < blanks.length && (
+              <span
+                className="border-b-2 border-gray-300 inline-block min-w-[100px] min-h-[30px] align-bottom mx-1"
+              >
+                {blanks[index] ? (
+                  <DraggableOption 
+                    key={blanks[index]} 
+                    id={blanks[index]}
+                  >
+                    {blanks[index]}
+                  </DraggableOption>
+                ) : null}
+              </span>
+            )}
+          </React.Fragment>
+        ))}
+      </div>
     );
   };
 
   return (
-    <div>
-      <div className="mb-4 text-lg leading-relaxed">{renderClozeText()}</div>
-      <div className="mt-4">
-        <h4 className="font-medium mb-2">Options:</h4>
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-          <SortableContext items={options}>
-            {options.map((option) => (
-              <DraggableOption key={option} id={option}>
-                {option}
-              </DraggableOption>
-            ))}
+    <DndContext 
+      sensors={sensors} 
+      collisionDetection={closestCenter} 
+      onDragStart={handleDragStart} 
+      onDragEnd={(event) => {
+        // Determine which drag end handler to use
+        if (blanks.includes(event.active.id as string)) {
+          handleBlankDragEnd(event);
+        } else {
+          handleDragEnd(event);
+        }
+      }}
+    >
+      <div>
+        <div className="mb-4 text-lg leading-relaxed">
+          {renderClozeText()}
+        </div>
+        
+        <div className="mt-4">
+          <h4 className="font-medium mb-2">Options:</h4>
+          <SortableContext items={availableOptions}>
+            <div className="flex flex-wrap gap-2">
+              {availableOptions.map((option) => (
+                <DraggableOption 
+                  key={option} 
+                  id={option}
+                  isDragging={activeId === option}
+                >
+                  {option}
+                </DraggableOption>
+              ))}
+            </div>
           </SortableContext>
-          <DragOverlay>
-            {activeId ? (
-              <span className="bg-blue-100 px-2 py-1 rounded cursor-move inline-block m-1">
-                {activeId}
-              </span>
-            ) : null}
-          </DragOverlay>
-        </DndContext>
+        </div>
+
+        <DragOverlay>
+          {activeId ? (
+            <span 
+              className="bg-blue-100 px-2 py-1 rounded cursor-move inline-block m-1"
+              style={{
+                whiteSpace: 'nowrap',
+                maxWidth: '200px',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
+              }}
+            >
+              {activeId}
+            </span>
+          ) : null}
+        </DragOverlay>
+
+        {error && <p className="text-red-500 mt-2">{error}</p>}
       </div>
-      {error && <p className="text-red-500 mt-2">{error}</p>}
-    </div>
+    </DndContext>
   );
 };
 
 export default ClozePreview;
-
