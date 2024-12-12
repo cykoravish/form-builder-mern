@@ -39,9 +39,13 @@ const DraggableOption: React.FC<{ id: string; children: React.ReactNode }> = ({ 
 };
 
 const ClozePreview: React.FC<ClozePreviewProps> = ({ question, answer, onAnswerChange, error }) => {
+  console.log("coze Q, : ", question)
   const [blanks, setBlanks] = useState<string[]>(answer || question.blanks.map(() => ''));
-  const [options, setOptions] = useState<string[]>(question.options || []);
+  const [options, setOptions] = useState<string[]>(question.blanks || []);
   const [activeId, setActiveId] = useState<string | null>(null);
+  // console.log("blanks: ", blanks)
+  // console.log("options: ",options)
+  // console.log("activeId: ",activeId)
 
   const sensors = useSensors(
     useSensor(PointerSensor),
