@@ -6,7 +6,7 @@ import { CategorizeQuestion } from '../../types/form'
 
 interface CategorizePreviewProps {
   question: CategorizeQuestion
-  answer: Record<string, string[]>
+  answer: Record<string, string[]> | undefined;
   onAnswerChange: (answer: Record<string, string[]>) => void
   error?: string
 }

@@ -1,29 +1,34 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { ClozeQuestion } from '../../types/form'
 
 interface ClozePreviewProps {
   question: ClozeQuestion
-  answer: string[]
+  answer: string[] | undefined
   onAnswerChange: (answer: string[]) => void
   error?: string
 }
+
 
 const ClozePreview: React.FC<ClozePreviewProps> = ({ question, answer, onAnswerChange, error }) => {
   const [blanks, setBlanks] = useState<string[]>(answer || question.blanks.map(() => ''))
 
   useEffect(() => {
-    onAnswerChange(blanks)
-  }, [blanks, onAnswerChange])
+    if (JSON.stringify(blanks) !== JSON.stringify(answer)) {
+      onAnswerChange(blanks);
+    }
+  }, [blanks, answer, onAnswerChange])
 
-  const handleBlankChange = (index: number, value: string) => {
-    const newBlanks = [...blanks]
-    newBlanks[index] = value
-    setBlanks(newBlanks)
-  }
+  const handleBlankChange = useCallback((index: number, value: string) => {
+    setBlanks(prevBlanks => {
+      const newBlanks = [...prevBlanks];
+      newBlanks[index] = value;
+      return newBlanks;
+    });
+  }, []);
 
-  const renderClozeText = () => {
-    const parts = question.text.split(/\[\.\.\.]/g)
-    return parts.map((part, index) => (
+  const renderClozeText = useMemo(() => {
+    const parts = question.text.split(/\[\.\.\.]/g);
+    return () => parts.map((part, index) => (
       <React.Fragment key={index}>
         {part}
         {index < blanks.length && (
@@ -35,8 +40,8 @@ const ClozePreview: React.FC<ClozePreviewProps> = ({ question, answer, onAnswerC
           />
         )}
       </React.Fragment>
-    ))
-  }
+    ));
+  }, [question.text, blanks, handleBlankChange]);
 
   return (
     <div>

@@ -12,10 +12,20 @@ const FormSchema = new mongoose.Schema({
       enum: ['categorize', 'cloze', 'comprehension'],
       required: true
     },
-    content: {
-      type: mongoose.Schema.Types.Mixed,
-      required: true
-    }
+    question: String,
+    categories: [String],
+    items: [{
+      text: String,
+      category: String
+    }],
+    text: String,
+    blanks: [String],
+    passage: String,
+    questions: [{
+      question: String,
+      options: [String],
+      correctAnswer: String
+    }]
   }],
   createdAt: {
     type: Date,
@@ -24,7 +34,4 @@ const FormSchema = new mongoose.Schema({
 })
 
 const Form = mongoose.model('Form', FormSchema)
-
 export default Form
-
-console.log('Form model created')

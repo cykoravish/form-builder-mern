@@ -75,7 +75,7 @@ const FormBuilder: React.FC = () => {
     removeQuestion,
     reorderQuestions,
   } = useFormStore();
-  console.log("form: ", form);
+
   const [currentStep, setCurrentStep] = useState(1);
 
   const sensors = useSensors(

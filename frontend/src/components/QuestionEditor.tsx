@@ -27,7 +27,6 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
 
     // Explicitly type the onUpdate prop
     const handleUpdate = (updatedQuestion: FormField) => {
-      console.log("Updating question:", updatedQuestion);
       onUpdate(updatedQuestion);
     };
 
