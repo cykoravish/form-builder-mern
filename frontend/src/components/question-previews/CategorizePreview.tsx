@@ -1,93 +1,116 @@
-import React, { useState } from 'react'
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
-import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
+import React, { useState, useEffect, useMemo } from 'react'
 import { CategorizeQuestion } from '../../types/form'
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent, DragOverlay } from '@dnd-kit/core'
+import { SortableContext, arrayMove, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable'
+import { SortableItem } from './SortableItem'
+import { useDroppable } from '@dnd-kit/core'
 
 interface CategorizePreviewProps {
   question: CategorizeQuestion
-  answer: Record<string, string[]> | undefined;
+  answer: Record<string, string[]>
   onAnswerChange: (answer: Record<string, string[]>) => void
   error?: string
 }
 
-const SortableItem = ({ id, item }: { id: string; item: string }) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-  } = useSortable({ id })
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  }
-
+const Droppable: React.FC<{ id: string; children: React.ReactNode }> = ({ id, children }) => {
+  const { setNodeRef } = useDroppable({ id });
   return (
-    <li
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-      className="bg-white p-2 mb-2 rounded shadow cursor-move"
-    >
-      {item}
-    </li>
-  )
-}
+    <div ref={setNodeRef} className="min-h-[100px]">
+      {children}
+    </div>
+  );
+};
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const CategorizePreview: React.FC<CategorizePreviewProps> = ({ question, answer, onAnswerChange, error }) => {
-  const [items, setItems] = useState(question.items)
+const CategorizePreview: React.FC<CategorizePreviewProps> = ({
+  question,
+  answer,
+  onAnswerChange,
+  error
+}) => {
+  const [categories, setCategories] = useState<Record<string, string[]>>(() => {
+    const initialCategories = question.categories.reduce((acc, category) => ({ ...acc, [category]: [] }), {});
+    return { ...initialCategories, uncategorized: question.items.map(item => item.text || item) };
+  });
+  const [activeId, setActiveId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (Object.keys(answer).length > 0) {
+      setCategories(answer);
+    }
+  }, [answer]);
+
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
-  )
+  );
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleDragEnd = (event: any) => {
-    const { active, over } = event
+  const handleDragStart = (event: DragEndEvent) => {
+    const { active } = event;
+    setActiveId(active.id as string);
+  };
 
-    if (active.id !== over.id) {
-      const oldIndex = items.findIndex((item) => item.text === active.id)
-      const newIndex = items.findIndex((item) => item.text === over.id)
-      const newItems = [...items]
-      const [movedItem] = newItems.splice(oldIndex, 1)
-      newItems.splice(newIndex, 0, movedItem)
-      setItems(newItems)
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
 
-      const newAnswer = question.categories.reduce((acc, category) => {
-        acc[category] = newItems.filter((item) => item.category === category).map((item) => item.text)
-        return acc
-      }, {} as Record<string, string[]>)
-      onAnswerChange(newAnswer)
+    if (over && active.id !== over.id) {
+      setCategories((prev) => {
+        const activeCategory = Object.keys(prev).find(
+          (key) => prev[key].includes(active.id as string)
+        );
+        const overCategory = over.id as string;
+
+        if (activeCategory && overCategory in prev) {
+          const newCategories = { ...prev };
+          newCategories[activeCategory] = prev[activeCategory].filter(item => item !== active.id);
+          newCategories[overCategory] = [...prev[overCategory], active.id as string];
+
+          onAnswerChange(newCategories);
+          return newCategories;
+        }
+        return prev;
+      });
     }
-  }
+    setActiveId(null);
+  };
+
+  const allItems = useMemo(() => Object.values(categories).flat(), [categories]);
 
   return (
     <div>
       <h3 className="text-lg font-semibold mb-4">{question.question}</h3>
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <div className="flex flex-wrap -mx-2">
-          {question.categories.map((category) => (
-            <div key={category} className="w-full sm:w-1/2 md:w-1/3 px-2 mb-4">
+      <DndContext 
+        sensors={sensors} 
+        collisionDetection={closestCenter} 
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Object.entries(categories).map(([category, items]) => (
+            <div key={category} className="bg-gray-100 p-4 rounded-lg">
               <h4 className="font-medium mb-2">{category}</h4>
-              <SortableContext items={items.filter((item) => item.category === category).map((item) => item.text)} strategy={verticalListSortingStrategy}>
-                <ul className="min-h-[100px] bg-gray-100 p-2 rounded">
-                  {items
-                    .filter((item) => item.category === category)
-                    .map((item) => (
-                      <SortableItem key={item.text} id={item.text} item={item.text} />
+              <Droppable id={category}>
+                <SortableContext items={items} strategy={verticalListSortingStrategy}>
+                  <ul className="space-y-2">
+                    {items.map((item) => (
+                      <SortableItem key={item} id={item}>
+                        {item}
+                      </SortableItem>
                     ))}
-                </ul>
-              </SortableContext>
+                  </ul>
+                </SortableContext>
+              </Droppable>
             </div>
           ))}
         </div>
+        <DragOverlay>
+          {activeId ? (
+            <div className="bg-white p-2 rounded shadow cursor-move">
+              {activeId}
+            </div>
+          ) : null}
+        </DragOverlay>
       </DndContext>
       {error && <p className="text-red-500 mt-2">{error}</p>}
     </div>

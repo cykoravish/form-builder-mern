@@ -4,7 +4,6 @@ import { toast } from "react-hot-toast";
 import { getFormById, submitFormResponse } from "../services/formService";
 import {
   Form,
-  FormField,
   FormResponse,
   CategorizeQuestion,
   ClozeQuestion,
@@ -17,11 +16,8 @@ import ComprehensionPreview from "../components/question-previews/ComprehensionP
 const FormPreview: React.FC = () => {
   const { formId } = useParams<{ formId: string }>();
   const [form, setForm] = useState<Form | null>(null);
-  // const [answers, setAnswers] = useState<(string[] | undefined)[]>([])
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [answers, setAnswers] = useState<any[]>([]);
-
-  const [errors, setErrors] = useState<Record<number, string>>({});
+  const [answers, setAnswers] = useState<Record<string, any>>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     const fetchForm = async () => {
@@ -32,8 +28,18 @@ const FormPreview: React.FC = () => {
       try {
         const fetchedForm = await getFormById(formId);
         setForm(fetchedForm);
-        // setAnswers(fetchedForm.questions.map(() => ({})))
-        setAnswers(fetchedForm.questions.map(() => []));
+        const initialAnswers = fetchedForm.questions.reduce((acc, q) => {
+          if (q.type === 'categorize') {
+            const categories = q.categories.reduce((catAcc, cat) => ({ ...catAcc, [cat]: [] }), {});
+            acc[q._id] = { ...categories, uncategorized: q.items.map(item => item.text || item) };
+          } else if (q.type === 'cloze') {
+            acc[q._id] = q.blanks.map(() => '');
+          } else if (q.type === 'comprehension') {
+            acc[q._id] = {};
+          }
+          return acc;
+        }, {} as Record<string, any>);
+        setAnswers(initialAnswers);
       } catch (error) {
         toast.error("Failed to load form");
         console.error(error);
@@ -42,12 +48,8 @@ const FormPreview: React.FC = () => {
     fetchForm();
   }, [formId]);
 
-  const handleAnswerChange = (index: number, answer: unknown) => {
-    const newAnswers = [...answers];
-
-    newAnswers[index] = answer as string[] | Record<number, string>;
-
-    setAnswers(newAnswers);
+  const handleAnswerChange = (questionId: string, answer: any) => {
+    setAnswers(prev => ({ ...prev, [questionId]: answer }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -58,11 +60,40 @@ const FormPreview: React.FC = () => {
       return;
     }
 
+    const newErrors: Record<string, string> = {};
+    form.questions.forEach(question => {
+      const answer = answers[question._id];
+      if (question.type === 'categorize') {
+        const uncategorizedItems = answer.uncategorized?.length || 0;
+        if (uncategorizedItems > 0) {
+          newErrors[question._id] = `Please categorize all items. ${uncategorizedItems} item(s) left.`;
+        }
+      } else if (question.type === 'cloze') {
+        if (answer.some((a: string) => a === '')) {
+          newErrors[question._id] = 'Please fill in all blanks';
+        }
+      } else if (question.type === 'comprehension') {
+        const answeredQuestions = Object.keys(answer).length;
+        const totalQuestions = (question as ComprehensionQuestion).questions.length;
+        if (answeredQuestions < totalQuestions) {
+          newErrors[question._id] = `Please answer all questions. ${totalQuestions - answeredQuestions} question(s) left.`;
+        }
+      }
+    });
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      toast.error('Please answer all questions correctly');
+      return;
+    }
+
     try {
-    
       const formResponse: FormResponse = {
         formId: formId!,
-        answers: answers as unknown as Record<string, unknown>[],
+        answers: Object.entries(answers).map(([questionId, answer]) => ({
+          questionId,
+          answer,
+        })),
       };
 
       await submitFormResponse(formId!, formResponse);
@@ -74,11 +105,13 @@ const FormPreview: React.FC = () => {
   };
 
   if (!form) {
-    return <div>Loading...</div>;
+    return <div className="flex justify-center items-center h-screen">
+      <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
+    </div>;
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6">{form.title}</h1>
       {form.headerImage && (
         <img
@@ -88,37 +121,37 @@ const FormPreview: React.FC = () => {
         />
       )}
       <form onSubmit={handleSubmit} className="space-y-6">
-        {form.questions.map((question, index) => (
-          <div key={index} className="bg-white p-4 rounded shadow">
+        {form.questions.map((question) => (
+          <div key={question._id} className="bg-white p-4 rounded shadow">
             {question.type === "categorize" && (
               <CategorizePreview
-                question={question}
-                answer={answers[index]}
-                onAnswerChange={(answer) => handleAnswerChange(index, answer)}
-                error={errors[index]}
+                question={question as CategorizeQuestion}
+                answer={answers[question._id]}
+                onAnswerChange={(answer) => handleAnswerChange(question._id, answer)}
+                error={errors[question._id]}
               />
             )}
             {question.type === "cloze" && (
               <ClozePreview
-                question={question}
-                answer={answers[index] as string[] | undefined} // Type assertion to bypass the type check
-                onAnswerChange={(answer) => handleAnswerChange(index, answer)}
-                error={errors[index]}
+                question={question as ClozeQuestion}
+                answer={answers[question._id]}
+                onAnswerChange={(answer) => handleAnswerChange(question._id, answer)}
+                error={errors[question._id]}
               />
             )}
             {question.type === "comprehension" && (
               <ComprehensionPreview
-                question={question}
-                answer={answers[index]}
-                onAnswerChange={(answer) => handleAnswerChange(index, answer)}
-                error={errors[index]}
+                question={question as ComprehensionQuestion}
+                answer={answers[question._id]}
+                onAnswerChange={(answer) => handleAnswerChange(question._id, answer)}
+                error={errors[question._id]}
               />
             )}
           </div>
         ))}
         <button
           type="submit"
-          className="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 transition-colors"
+          className="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 transition-colors w-full"
         >
           Submit
         </button>
@@ -128,3 +161,4 @@ const FormPreview: React.FC = () => {
 };
 
 export default FormPreview;
+
