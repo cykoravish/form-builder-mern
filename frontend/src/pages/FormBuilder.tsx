@@ -22,6 +22,7 @@ import { useFormStore } from "../store/formStore";
 import { createForm } from "../services/formService";
 import { QuestionType, FormField } from "../types/form";
 import QuestionEditor from "../components/QuestionEditor";
+import { hasDuplicates, hasDuplicateText, hasEmptyCategory, hasEmptyElement, hasEmptyText } from "../utility";
 
 interface SortableQuestionProps {
   id: string;
@@ -108,6 +109,7 @@ const FormBuilder: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("form: ", form);
     if (!form.title) {
       toast.error("Please enter a form title.");
       return;
@@ -116,6 +118,41 @@ const FormBuilder: React.FC = () => {
       toast.error("Please add at least one question to the form.");
       return;
     }
+
+    for (let i = 0; i < form.questions.length; i++) {
+      if (form.questions[i].type === "categorize") {
+        if (form.questions[i].question.trim() === "") {
+          toast.error("There is a empty categorize question. Please update it");
+          return;
+        } else if (hasDuplicates(form.questions[i].categories)) {
+          toast.error(
+            "There is a dublicate category in categorize question. Please fix it"
+          );
+          return;
+        } else if (hasEmptyElement(form.questions[i].categories)) {
+          toast.error(
+            "There is a empty category in categorize question. Please fix it"
+          );
+          return;
+        }else if (hasEmptyCategory(form.questions[i].items)) {
+          toast.error(
+            "category not selected in one of the item in categorize question. Please fix it"
+          );
+          return;
+        }else if (hasDuplicateText(form.questions[i].items)) {
+          toast.error(
+            "you have dublicate item in one of the category item in categorize question. please fix it"
+          );
+          return;
+        }else if (hasEmptyText(form.questions[i].items)) {
+          toast.error(
+            "you have empty item in one of the category item in categorize question. please fix it"
+          );
+          return;
+        }
+      }
+    }
+
     try {
       const createdForm = await createForm(form);
       toast.success("Form created successfully!");
@@ -220,8 +257,8 @@ const FormBuilder: React.FC = () => {
       {currentStep === 2 && (
         <div>
           <p className="mb-4 text-sm text-gray-600">
-            Tip: You can drag and drop questions to reorder them. Click and hold
-            on a question, then move it to the desired position.
+            Tip: You can choose any from these three question types and add them
+            to your form.
           </p>
           <DndContext
             sensors={sensors}

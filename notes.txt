@@ -1,3 +1,4 @@
 =>remove this line and give all tips at one place - Tip: You can drag and drop questions to reorder them. Click and hold on a question, then move it to the desired position.
 =>validate if there is any dublicate blank in all category
 =>make sure form must not submit if the data is invalid
+=>validation on categorize ques dome now do the validation on cloze and comprehensive and than preview form.
