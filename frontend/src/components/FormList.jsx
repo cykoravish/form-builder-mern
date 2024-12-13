@@ -1,6 +1,6 @@
 import React from 'react';
 
-const FormList: React.FC = () => {
+const FormList = () => {
   return (
     <div>
       <h1>Form List</h1>

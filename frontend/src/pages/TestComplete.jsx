@@ -7,7 +7,7 @@ const TestComplete = () => {
   const navigate = useNavigate();
 
   const handleGoHome = () => {
-    navigate("/"); // Navigate to the home page
+    navigate("/"); 
   };
 
   return (

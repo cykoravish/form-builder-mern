@@ -1,22 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { ComprehensionQuestion } from '../../types/form'
 
-interface ComprehensionPreviewProps {
-  question: ComprehensionQuestion
-  answer: Record<number, string>
-  onAnswerChange: (answer: Record<number, string>) => void
-  error?: string
-}
 
-const ComprehensionPreview: React.FC<ComprehensionPreviewProps> = ({ 
+
+const ComprehensionPreview= ({ 
   question, 
   answer, 
   onAnswerChange, 
   error 
 }) => {
-  const [selectedAnswers, setSelectedAnswers] = useState<Record<number, string>>(answer || {})
+  const [selectedAnswers, setSelectedAnswers] = useState(answer || {})
 
-  const handleAnswerChange = useCallback((questionIndex: number, selectedOption: string) => {
+  const handleAnswerChange = useCallback((questionIndex, selectedOption) => {
     setSelectedAnswers(prev => ({
       ...prev,
       [questionIndex]: selectedOption,

@@ -1,4 +1,4 @@
-import React from 'react'
+
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import Header from './components/Header'
@@ -7,7 +7,7 @@ import FormList from './pages/FormList'
 import FormPreview from './pages/FormPreview'
 import TestComplete from './pages/TestComplete'
 
-const App: React.FC = () => {
+const App = () => {
   return (
     <Router>
       <div className="min-h-screen bg-gray-100">

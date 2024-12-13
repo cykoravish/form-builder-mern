@@ -1,13 +1,8 @@
-import React from 'react'
-import { CategorizeQuestion } from '../../types/form'
+
 import { toast } from 'react-hot-toast'
 
-interface CategorizeEditorProps {
-  question: CategorizeQuestion
-  onUpdate: (question: CategorizeQuestion) => void
-}
 
-const CategorizeEditor: React.FC<CategorizeEditorProps> = ({ question, onUpdate }) => {
+const CategorizeEditor= ({ question, onUpdate }) => {
   const addCategory = () => {
     onUpdate({
       ...question,
@@ -15,7 +10,7 @@ const CategorizeEditor: React.FC<CategorizeEditorProps> = ({ question, onUpdate 
     })
   }
 
-  const updateCategory = (index: number, value: string) => {
+  const updateCategory = (index, value) => {
     const newCategories = [...question.categories]
     newCategories[index] = value
     onUpdate({
@@ -35,7 +30,7 @@ const CategorizeEditor: React.FC<CategorizeEditorProps> = ({ question, onUpdate 
     })
   }
 
-  const updateItem = (index: number, field: 'text' | 'category', value: string) => {
+  const updateItem = (index, field , value) => {
     const newItems = [...question.items]
     newItems[index] = { ...newItems[index], [field]: value }
     onUpdate({

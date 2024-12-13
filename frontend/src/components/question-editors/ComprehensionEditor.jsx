@@ -1,22 +1,18 @@
 import React, { useCallback } from "react";
-import { ComprehensionQuestion, FormField } from "../../types/form";
+
 import { toast } from "react-hot-toast";
 
-interface ComprehensionEditorProps {
-  question: ComprehensionQuestion;
-  onUpdate: (question: ComprehensionQuestion) => void;
-}
 
-export const ComprehensionEditor: React.FC<ComprehensionEditorProps> = ({
+export const ComprehensionEditor = ({
   question,
   onUpdate,
 }) => {
   const handlePassageChange = useCallback(
-    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    (e) => {
       console.log("Passage change triggered: ", e.target.value);
 
       // Ensure type compatibility
-      const updatedQuestion: FormField = {
+      const updatedQuestion = {
         ...question,
         passage: e.target.value,
       };
@@ -34,7 +30,7 @@ export const ComprehensionEditor: React.FC<ComprehensionEditorProps> = ({
     }
 
     // Ensure type compatibility
-    const updatedQuestion: FormField = {
+    const updatedQuestion = {
       ...question,
       questions: [
         ...(question.questions || []),
@@ -50,7 +46,7 @@ export const ComprehensionEditor: React.FC<ComprehensionEditorProps> = ({
   }, [question, onUpdate]);
 
   const updateQuestion = useCallback(
-    (questionIndex: number, field: string, value: string) => {
+    (questionIndex, field, value) => {
       console.log(
         `Updating question ${questionIndex}, field: ${field}, value: ${value}`
       );
@@ -62,7 +58,7 @@ export const ComprehensionEditor: React.FC<ComprehensionEditorProps> = ({
         [field]: value,
       };
 
-      const updatedQuestion: FormField = {
+      const updatedQuestion = {
         ...question,
         questions: newQuestions,
       };
@@ -74,7 +70,7 @@ export const ComprehensionEditor: React.FC<ComprehensionEditorProps> = ({
 
   // Update a specific option within a question
   const updateOption = useCallback(
-    (questionIndex: number, optionIndex: number, value: string) => {
+    (questionIndex, optionIndex, value) => {
       console.log(
         `Updating option for question ${questionIndex}, option ${optionIndex}, value: ${value}`
       );
@@ -91,7 +87,7 @@ export const ComprehensionEditor: React.FC<ComprehensionEditorProps> = ({
 
       newQuestions[questionIndex].options[optionIndex] = value;
 
-      const updatedQuestion: FormField = {
+      const updatedQuestion = {
         ...question,
         questions: newQuestions,
       };

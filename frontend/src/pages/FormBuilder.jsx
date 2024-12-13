@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -21,7 +21,6 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { useFormStore } from "../store/formStore";
 import { createForm } from "../services/formService";
-import { QuestionType, FormField } from "../types/form";
 import QuestionEditor from "../components/QuestionEditor";
 import {
   hasDuplicates,
@@ -31,15 +30,9 @@ import {
   hasEmptyText,
 } from "../utility";
 
-interface SortableQuestionProps {
-  id: string;
-  question: FormField;
-  index: number;
-  onUpdate: (updatedQuestion: FormField) => void;
-  onRemove: () => void;
-}
 
-const SortableQuestion: React.FC<SortableQuestionProps> = ({
+
+const SortableQuestion = ({
   id,
   question,
   index,
@@ -56,7 +49,6 @@ const SortableQuestion: React.FC<SortableQuestionProps> = ({
 
   return (
     <>
-      {/* <div ref={setNodeRef} style={style} {...attributes} {...listeners}> */}
       <div ref={setNodeRef} style={style} {...attributes}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -74,7 +66,7 @@ const SortableQuestion: React.FC<SortableQuestionProps> = ({
   );
 };
 
-const FormBuilder: React.FC = () => {
+const FormBuilder = () => {
   const navigate = useNavigate();
   const {
     form,
@@ -94,8 +86,8 @@ const FormBuilder: React.FC = () => {
     })
   );
 
-  const handleAddQuestion = (type: QuestionType) => {
-    let newQuestion: FormField;
+  const handleAddQuestion = (type) => {
+    let newQuestion
     switch (type) {
       case "categorize":
         newQuestion = { type, question: "", categories: [], items: [] };
@@ -114,7 +106,7 @@ const FormBuilder: React.FC = () => {
     toast.success(`New ${type} question added. Please fill in the details.`);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("form: ", form);
     if (!form.title) {
@@ -232,8 +224,7 @@ const FormBuilder: React.FC = () => {
     }
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleDragEnd = (event: any) => {
+  const handleDragEnd = (event) => {
     const { active, over } = event;
 
     if (active.id !== over.id) {

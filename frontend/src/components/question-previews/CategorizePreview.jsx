@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { CategorizeQuestion } from "../../types/form";
+import React, { useState, useEffect } from "react";
 import {
   DndContext,
   closestCenter,
@@ -7,31 +6,19 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
-  DragEndEvent,
-  DragStartEvent,
-  DragOverEvent,
   DragOverlay,
 } from "@dnd-kit/core";
 import {
   SortableContext,
-  arrayMove,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { SortableItem } from "./SortableItem";
 import { useDroppable } from "@dnd-kit/core";
 
-interface CategorizePreviewProps {
-  question: CategorizeQuestion;
-  answer: Record<string, string[]>;
-  onAnswerChange: (answer: Record<string, string[]>) => void;
-  error?: string;
-}
 
-const Droppable: React.FC<{ id: string; children: React.ReactNode }> = ({
-  id,
-  children,
-}) => {
+// Move Droppable component before the main component
+const Droppable = ({ id, children }) => {
   const { setNodeRef } = useDroppable({ id });
   return (
     <div ref={setNodeRef} className="min-h-[100px]">
@@ -40,14 +27,10 @@ const Droppable: React.FC<{ id: string; children: React.ReactNode }> = ({
   );
 };
 
-const CategorizePreview: React.FC<CategorizePreviewProps> = ({
-  question,
-  answer,
-  onAnswerChange,
-  error,
-}) => {
-  // Initialize categories with all items in uncategorized
-  const [categories, setCategories] = useState<Record<string, string[]>>(() => {
+
+const CategorizePreview = ({ question, answer, onAnswerChange, error }) => {
+ 
+  const [categories, setCategories] = useState(() => {
     const initialCategories = question.categories.reduce(
       (acc, category) => ({ ...acc, [category]: [] }),
       {}
@@ -58,8 +41,7 @@ const CategorizePreview: React.FC<CategorizePreviewProps> = ({
     };
   });
 
-  const [activeId, setActiveId] = useState<string | null>(null);
-
+  const [activeId, setActiveId] = useState(null);
   // Update categories when answer prop changes
   useEffect(() => {
     if (Object.keys(answer).length > 0) {
@@ -79,43 +61,36 @@ const CategorizePreview: React.FC<CategorizePreviewProps> = ({
     })
   );
 
-  // Handle drag start
-  const handleDragStart = (event: DragStartEvent) => {
+  const handleDragStart = (event) => {
     const { active } = event;
-    setActiveId(active.id as string);
+    setActiveId(active.id);
   };
 
-  // Handle drag end (drop)
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = (event) => {
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
       setCategories((prevCategories) => {
-        // Create a deep copy of the current categories
         const newCategories = JSON.parse(JSON.stringify(prevCategories));
 
-        // Find the source category of the dragged item
-        const sourceCategory = Object.keys(newCategories).find(category => 
-          newCategories[category].includes(active.id as string)
+        const sourceCategory = Object.keys(newCategories).find((category) =>
+          newCategories[category].includes(active.id)
         );
 
-        // Find the destination category
-        const destinationCategory = Object.keys(newCategories).find(category => 
-          category === over.id || newCategories[category].includes(over.id as string)
+        const destinationCategory = Object.keys(newCategories).find(
+          (category) =>
+            category === over.id || newCategories[category].includes(over.id)
         );
 
         if (sourceCategory && destinationCategory) {
-          // Remove item from source category
           newCategories[sourceCategory] = newCategories[sourceCategory].filter(
-            item => item !== active.id
+            (item) => item !== active.id
           );
 
-          // Add item to destination category if not already there
-          if (!newCategories[destinationCategory].includes(active.id as string)) {
-            newCategories[destinationCategory].push(active.id as string);
+          if (!newCategories[destinationCategory].includes(active.id)) {
+            newCategories[destinationCategory].push(active.id);
           }
 
-          // Trigger answer change
           onAnswerChange(newCategories);
 
           return newCategories;
@@ -125,38 +100,32 @@ const CategorizePreview: React.FC<CategorizePreviewProps> = ({
       });
     }
 
-    // Reset active id
     setActiveId(null);
   };
 
-  // Handle drag over to support cross-category dragging
-  const handleDragOver = (event: DragOverEvent) => {
+  const handleDragOver = (event) => {
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
       setCategories((prevCategories) => {
-        // Create a deep copy of the current categories
         const newCategories = JSON.parse(JSON.stringify(prevCategories));
 
-        // Find the source category of the dragged item
-        const sourceCategory = Object.keys(newCategories).find(category => 
-          newCategories[category].includes(active.id as string)
+        const sourceCategory = Object.keys(newCategories).find((category) =>
+          newCategories[category].includes(active.id)
         );
 
-        // Find the destination category
-        const destinationCategory = Object.keys(newCategories).find(category => 
-          category === over.id || newCategories[category].includes(over.id as string)
+        const destinationCategory = Object.keys(newCategories).find(
+          (category) =>
+            category === over.id || newCategories[category].includes(over.id)
         );
 
         if (sourceCategory && destinationCategory) {
-          // Remove item from source category
           newCategories[sourceCategory] = newCategories[sourceCategory].filter(
-            item => item !== active.id
+            (item) => item !== active.id
           );
 
-          // Add item to destination category if not already there
-          if (!newCategories[destinationCategory].includes(active.id as string)) {
-            newCategories[destinationCategory].push(active.id as string);
+          if (!newCategories[destinationCategory].includes(active.id)) {
+            newCategories[destinationCategory].push(active.id);
           }
 
           return newCategories;

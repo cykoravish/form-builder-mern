@@ -1,26 +1,19 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { getFormById, submitFormResponse } from "../services/formService";
 import img from "../assets/defaultImage.jpg"
 
-import {
-  Form,
-  FormResponse,
-  CategorizeQuestion,
-  ClozeQuestion,
-  ComprehensionQuestion,
-} from "../types/form";
 import CategorizePreview from "../components/question-previews/CategorizePreview";
 import ClozePreview from "../components/question-previews/ClozePreview";
 import ComprehensionPreview from "../components/question-previews/ComprehensionPreview";
 
-const FormPreview: React.FC = () => {
-  const { formId } = useParams<{ formId: string }>();
-  const [form, setForm] = useState<Form | null>(null);
-  const [answers, setAnswers] = useState<Record<string, any>>({});
-  const [errors, setErrors] = useState<Record<string, string>>({});
+const FormPreview = () => {
+  const { formId } = useParams();
+  const [form, setForm] = useState(null);
+  const [answers, setAnswers] = useState({});
+  const [errors, setErrors] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -48,7 +41,7 @@ const FormPreview: React.FC = () => {
             acc[q._id] = {};
           }
           return acc;
-        }, {} as Record<string, any>);
+        }, {});
         setAnswers(initialAnswers);
       } catch (error) {
         toast.error("Failed to load form");
@@ -58,11 +51,11 @@ const FormPreview: React.FC = () => {
     fetchForm();
   }, [formId]);
 
-  const handleAnswerChange = (questionId: string, answer: any) => {
+  const handleAnswerChange = (questionId, answer) => {
     setAnswers((prev) => ({ ...prev, [questionId]: answer }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!form) {
@@ -70,23 +63,23 @@ const FormPreview: React.FC = () => {
       return;
     }
 
-    const newErrors: Record<string, string> = {};
+    const newErrors = {};
     form.questions.forEach((question) => {
       const answer = answers[question._id];
       if (question.type === "categorize") {
         const uncategorizedItems = answer.uncategorized?.length || 0;
-        if (uncategorizedItems > 0) {
-          newErrors[
-            question._id
-          ] = `Please categorize all items. ${uncategorizedItems} item(s) left.`;
-        }
+        // if (uncategorizedItems > 0) {
+        //   newErrors[
+        //     question._id
+        //   ] = `Please categorize all items. ${uncategorizedItems} item(s) left.`;
+        // }
       } else if (question.type === "cloze") {
-        if (answer.some((a: string) => a === "")) {
+        if (answer.some((a) => a === "")) {
           newErrors[question._id] = "Please fill in all blanks";
         }
       } else if (question.type === "comprehension") {
         const answeredQuestions = Object.keys(answer).length;
-        const totalQuestions = (question as ComprehensionQuestion).questions
+        const totalQuestions = (question).questions
           .length;
         if (answeredQuestions < totalQuestions) {
           newErrors[question._id] = `Please answer all questions. ${
@@ -103,15 +96,15 @@ const FormPreview: React.FC = () => {
     }
 
     try {
-      const formResponse: FormResponse = {
-        formId: formId!,
+      const formResponse = {
+        formId: formId,
         answers: Object.entries(answers).map(([questionId, answer]) => ({
           questionId,
           answer,
         })),
       };
 
-      await submitFormResponse(formId!, formResponse);
+      await submitFormResponse(formId, formResponse);
       toast.success("Form submitted successfully!");
       navigate("/test-submitted");
     } catch (error) {
@@ -150,7 +143,7 @@ const FormPreview: React.FC = () => {
           <div key={question._id} className="bg-white p-4 rounded shadow">
             {question.type === "categorize" && (
               <CategorizePreview
-                question={question as CategorizeQuestion}
+                question={question}
                 answer={answers[question._id]}
                 onAnswerChange={(answer) =>
                   handleAnswerChange(question._id, answer)
@@ -160,7 +153,7 @@ const FormPreview: React.FC = () => {
             )}
             {question.type === "cloze" && (
               <ClozePreview
-                question={question as ClozeQuestion}
+                question={question}
                 answer={answers[question._id]}
                 onAnswerChange={(answer) =>
                   handleAnswerChange(question._id, answer)
@@ -170,7 +163,7 @@ const FormPreview: React.FC = () => {
             )}
             {question.type === "comprehension" && (
               <ComprehensionPreview
-                question={question as ComprehensionQuestion}
+                question={question}
                 answer={answers[question._id]}
                 onAnswerChange={(answer) =>
                   handleAnswerChange(question._id, answer)

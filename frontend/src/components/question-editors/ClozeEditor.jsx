@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import React, { useState } from 'react'
 import { 
   DndContext, 
@@ -7,8 +7,6 @@ import {
   PointerSensor, 
   useSensor, 
   useSensors, 
-  DragEndEvent,
-  DragStartEvent,
   DragOverlay
 } from '@dnd-kit/core'
 import { 
@@ -19,26 +17,14 @@ import {
   sortableKeyboardCoordinates 
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { ClozeQuestion } from '../../types/form'
 import { toast } from 'react-hot-toast'
 import { Trash2, GripVertical } from 'lucide-react'
 
-interface ClozeEditorProps {
-  question: ClozeQuestion
-  onUpdate: (question: ClozeQuestion) => void
-}
-
-// Sortable Blank Item Component
 const SortableBlankItem = ({ 
   blank, 
   index, 
   onBlankChange, 
   onRemoveBlank 
-}: { 
-  blank: string, 
-  index: number, 
-  onBlankChange: (index: number, value: string) => void,
-  onRemoveBlank: (index: number) => void
 }) => {
   const {
     attributes,
@@ -87,9 +73,9 @@ const SortableBlankItem = ({
   )
 }
 
-const ClozeEditor: React.FC<ClozeEditorProps> = ({ question, onUpdate }) => {
+const ClozeEditor= ({ question, onUpdate }) => {
   const [localBlanks, setLocalBlanks] = useState(question.blanks)
-  const [activeId, setActiveId] = useState<string | null>(null)
+  const [activeId, setActiveId] = useState(null)
 
   // Sensor configuration for improved drag experience
   const sensors = useSensors(
@@ -103,14 +89,14 @@ const ClozeEditor: React.FC<ClozeEditorProps> = ({ question, onUpdate }) => {
     })
   )
 
-  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleTextChange = (e) => {
     onUpdate({
       ...question,
       text: e.target.value,
     })
   }
 
-  const handleBlankChange = (index: number, value: string) => {
+  const handleBlankChange = (index, value) => {
     const newBlanks = [...localBlanks]
     newBlanks[index] = value
     setLocalBlanks(newBlanks)
@@ -137,7 +123,7 @@ const ClozeEditor: React.FC<ClozeEditorProps> = ({ question, onUpdate }) => {
     })
   }
 
-  const removeBlank = (indexToRemove: number) => {
+  const removeBlank = (indexToRemove) => {
     const newBlanks = localBlanks.filter((_, index) => index !== indexToRemove)
     setLocalBlanks(newBlanks)
     onUpdate({
@@ -147,11 +133,11 @@ const ClozeEditor: React.FC<ClozeEditorProps> = ({ question, onUpdate }) => {
     toast.success('Blank removed successfully')
   }
 
-  const handleDragStart = (event: DragStartEvent) => {
-    setActiveId(event.active.id as string)
+  const handleDragStart = (event) => {
+    setActiveId(event.active.id)
   }
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = (event) => {
     const { active, over } = event
     
     if (active.id !== over?.id) {

@@ -1,22 +1,18 @@
 import React from "react";
-import { FormField, QuestionType } from "../types/form";
+
 import CategorizeEditor from "./question-editors/CategorizeEditor";
 import ClozeEditor from "./question-editors/ClozeEditor";
-import { ComprehensionEditor } from "@/components/question-editors/ComprehensionEditor";
+import { ComprehensionEditor } from "./question-editors/ComprehensionEditor";
 
-interface QuestionEditorProps {
-  question: FormField;
-  onUpdate: (updateQuestion: FormField) => void;
-  onRemove: () => void;
-}
 
-const QuestionEditor: React.FC<QuestionEditorProps> = ({
+
+const QuestionEditor= ({
   question,
   onUpdate,
   onRemove,
 }) => {
-  // Add a type guard to ensure type safety
-  const isValidQuestionType = (type: string): type is QuestionType =>
+
+  const isValidQuestionType = (type) =>
     ["categorize", "cloze", "comprehension"].includes(type);
 
   const renderEditor = () => {
@@ -26,7 +22,7 @@ const QuestionEditor: React.FC<QuestionEditorProps> = ({
     }
 
     // Explicitly type the onUpdate prop
-    const handleUpdate = (updatedQuestion: FormField) => {
+    const handleUpdate = (updatedQuestion) => {
       onUpdate(updatedQuestion);
     };
 

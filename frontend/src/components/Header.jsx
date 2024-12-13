@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
-const Header: React.FC = () => {
+const Header = () => {
   return (
     <header className="bg-white shadow-md">
       <nav className="container mx-auto px-4 py-4 flex justify-between items-center">

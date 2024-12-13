@@ -1,6 +1,6 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import React, { useState, useCallback, useMemo } from 'react'
-import { ClozeQuestion } from '../../types/form'
+
 import { 
   DndContext, 
   closestCenter, 
@@ -8,10 +8,9 @@ import {
   PointerSensor, 
   useSensor, 
   useSensors, 
-  DragEndEvent, 
-  DragStartEvent,
+
   DragOverlay,
-  DragMoveEvent
+
 } from '@dnd-kit/core'
 import { 
   SortableContext, 
@@ -21,18 +20,8 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
-interface ClozePreviewProps {
-  question: ClozeQuestion
-  answer: string[]
-  onAnswerChange: (answer: string[]) => void
-  error?: string
-}
 
-const DraggableOption: React.FC<{ 
-  id: string; 
-  children: React.ReactNode; 
-  isDragging?: boolean 
-}> = ({ id, children, isDragging }) => {
+const DraggableOption = ({ id, children, isDragging }) => {
   const {
     attributes,
     listeners,
@@ -47,7 +36,7 @@ const DraggableOption: React.FC<{
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-  } as React.CSSProperties;
+  }
 
   return (
     <span
@@ -66,26 +55,26 @@ const DraggableOption: React.FC<{
   );
 };
 
-const ClozePreview: React.FC<ClozePreviewProps> = ({ 
+const ClozePreview = ({ 
   question, 
   answer, 
   onAnswerChange, 
   error 
 }) => {
   // Initialize state with options from the question
-  const [blanks, setBlanks] = useState<string[]>(
+  const [blanks, setBlanks] = useState(
     answer || question.blanks.map(() => '')
   );
   
   // Track used options separately
-  const [usedOptions, setUsedOptions] = useState<string[]>([]);
+  const [usedOptions, setUsedOptions] = useState([]);
 
   // Compute available options
   const availableOptions = useMemo(() => {
     return question.blanks.filter(option => !usedOptions.includes(option));
   }, [question.blanks, usedOptions]);
 
-  const [activeId, setActiveId] = useState<string | null>(null);
+  const [activeId, setActiveId] = useState(null);
 
   // Sensors for drag and drop
   const sensors = useSensors(
@@ -100,17 +89,17 @@ const ClozePreview: React.FC<ClozePreviewProps> = ({
   );
 
   // Callback to handle answer changes
-  const handleAnswerChange = useCallback((newBlanks: string[]) => {
+  const handleAnswerChange = useCallback((newBlanks) => {
     onAnswerChange(newBlanks);
   }, [onAnswerChange]);
 
-  const handleDragStart = (event: DragStartEvent) => {
-    setActiveId(event.active.id as string);
+  const handleDragStart = (event) => {
+    setActiveId(event.active.id);
   };
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = (event) => {
     const { active, over } = event;
-    const draggedOption = active.id as string;
+    const draggedOption = active.id;
 
     if (over) {
       const blankIndex = blanks.findIndex(blank => blank === '');
@@ -134,7 +123,7 @@ const ClozePreview: React.FC<ClozePreviewProps> = ({
   };
 
   // New method to handle rearranging filled blanks
-  const handleBlankDragEnd = (event: DragEndEvent) => {
+  const handleBlankDragEnd = (event) => {
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
@@ -183,7 +172,7 @@ const ClozePreview: React.FC<ClozePreviewProps> = ({
       onDragStart={handleDragStart} 
       onDragEnd={(event) => {
         // Determine which drag end handler to use
-        if (blanks.includes(event.active.id as string)) {
+        if (blanks.includes(event.active.id)) {
           handleBlankDragEnd(event);
         } else {
           handleDragEnd(event);

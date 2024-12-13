@@ -3,13 +3,12 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FileText, Plus, Copy, Edit, Trash2 } from "lucide-react";
 import { deleteForm, getFormList } from "../services/formService";
-import { Form } from "../types/form";
 import toast from "react-hot-toast";
 import axios from "axios";
 
-const FormList: React.FC = () => {
-  const [forms, setForms] = useState<Form[]>([]);
-  const [selectedForm, setSelectedForm] = useState<string | null>(null);
+const FormList= () => {
+  const [forms, setForms] = useState([]);
+  const [selectedForm, setSelectedForm] = useState(null);
 
   const fetchForms = async () => {
     const formList = await getFormList();
@@ -43,7 +42,7 @@ const FormList: React.FC = () => {
     },
   };
 
-  const handleActionClick = async (formId: string, action: string) => {
+  const handleActionClick = async (formId, action) => {
     setSelectedForm(formId);
     console.log(`${action} form with ID: ${formId}`);
     // toast.success(`${action} form with ID: ${formId}`);
@@ -56,7 +55,7 @@ const FormList: React.FC = () => {
           response?.message || `Successfully deleted form with ID: ${formId}`
         );
         fetchForms();
-      } catch (error: any) {
+      } catch (error) {
         console.error("Error deleting form:", error);
         toast.error(
           error.response?.data?.message ||
