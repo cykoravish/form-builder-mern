@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -24,11 +25,9 @@ import { QuestionType, FormField } from "../types/form";
 import QuestionEditor from "../components/QuestionEditor";
 import {
   hasDuplicates,
-  hasDuplicatesCloze,
   hasDuplicateText,
   hasEmptyCategory,
   hasEmptyElement,
-  hasEmptyOptions,
   hasEmptyText,
 } from "../utility";
 
