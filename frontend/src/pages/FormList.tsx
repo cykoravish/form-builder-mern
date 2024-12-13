@@ -2,18 +2,20 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FileText, Plus, Copy, Edit, Trash2 } from "lucide-react";
-import { getFormList } from "../services/formService";
+import { deleteForm, getFormList } from "../services/formService";
 import { Form } from "../types/form";
+import toast from "react-hot-toast";
+import axios from "axios";
 
 const FormList: React.FC = () => {
   const [forms, setForms] = useState<Form[]>([]);
   const [selectedForm, setSelectedForm] = useState<string | null>(null);
 
+  const fetchForms = async () => {
+    const formList = await getFormList();
+    setForms(formList);
+  };
   useEffect(() => {
-    const fetchForms = async () => {
-      const formList = await getFormList();
-      setForms(formList);
-    };
     fetchForms();
   }, []);
 
@@ -41,10 +43,33 @@ const FormList: React.FC = () => {
     },
   };
 
-  const handleActionClick = (formId: string, action: string) => {
+  const handleActionClick = async (formId: string, action: string) => {
     setSelectedForm(formId);
-    // Implement actual actions (delete, duplicate, edit) here
     console.log(`${action} form with ID: ${formId}`);
+    // toast.success(`${action} form with ID: ${formId}`);
+
+    if (action === "delete") {
+      try {
+        const response = await deleteForm(formId);
+        console.log(response);
+        toast.success(
+          response?.message || `Successfully deleted form with ID: ${formId}`
+        );
+        fetchForms();
+      } catch (error: any) {
+        console.error("Error deleting form:", error);
+        toast.error(
+          error.response?.data?.message ||
+            "Failed to delete the form. Please try again."
+        );
+      }
+    }
+    if (action === "duplicate") {
+      toast.success("duplicate functionality comming soon");
+    }
+    if (action === "edit") {
+      toast.success("edit functionality comming soon");
+    }
   };
 
   return (
@@ -116,7 +141,7 @@ const FormList: React.FC = () => {
                   <Link to={`/preview/${form._id}`} className="block mb-4">
                     <motion.h2
                       whileHover={{ scale: 1.02 }}
-                      className="text-xl font-bold text-gray-800 truncate"
+                      className="text-xl font-bold text-gray-800 hover:text-blue-600 truncate hover:underline"
                     >
                       {form.title}
                     </motion.h2>

@@ -22,7 +22,15 @@ import { useFormStore } from "../store/formStore";
 import { createForm } from "../services/formService";
 import { QuestionType, FormField } from "../types/form";
 import QuestionEditor from "../components/QuestionEditor";
-import { hasDuplicates, hasDuplicateText, hasEmptyCategory, hasEmptyElement, hasEmptyText } from "../utility";
+import {
+  hasDuplicates,
+  hasDuplicatesCloze,
+  hasDuplicateText,
+  hasEmptyCategory,
+  hasEmptyElement,
+  hasEmptyOptions,
+  hasEmptyText,
+} from "../utility";
 
 interface SortableQuestionProps {
   id: string;
@@ -118,8 +126,9 @@ const FormBuilder: React.FC = () => {
       toast.error("Please add at least one question to the form.");
       return;
     }
-
     for (let i = 0; i < form.questions.length; i++) {
+      //  console.log("check: ",form.questions[i].questions.some((e) => e.correctAnswer === ""))
+
       if (form.questions[i].type === "categorize") {
         if (form.questions[i].question.trim() === "") {
           toast.error("There is a empty categorize question. Please update it");
@@ -134,19 +143,80 @@ const FormBuilder: React.FC = () => {
             "There is a empty category in categorize question. Please fix it"
           );
           return;
-        }else if (hasEmptyCategory(form.questions[i].items)) {
+        } else if (hasEmptyCategory(form.questions[i].items)) {
           toast.error(
             "category not selected in one of the item in categorize question. Please fix it"
           );
           return;
-        }else if (hasDuplicateText(form.questions[i].items)) {
+        } else if (hasDuplicateText(form.questions[i].items)) {
           toast.error(
             "you have dublicate item in one of the category item in categorize question. please fix it"
           );
           return;
-        }else if (hasEmptyText(form.questions[i].items)) {
+        } else if (hasEmptyText(form.questions[i].items)) {
           toast.error(
             "you have empty item in one of the category item in categorize question. please fix it"
+          );
+          return;
+        } else if (form.questions[i].categories.length < 2) {
+          toast.error(
+            "you must add atleast 2 categories in categorize questions"
+          );
+          return;
+        } else if (form.questions[i].items.length < 1) {
+          toast.error("you must add atleast 1 item in categorize questions");
+          return;
+        }
+      } else if (form.questions[i].type === "cloze") {
+        if (form.questions[i].text.trim() === "") {
+          toast.error(
+            "one of the cloze type question is empty. please add a question in the field"
+          );
+          return;
+        } else if (
+          (form.questions[i].text.match(/\[\.\.\.\]/g) || []).length !==
+          form.questions[i].blanks.length
+        ) {
+          toast.error(
+            "Number of blanks ([...]) and number of questions must be equal in Cloze type category question"
+          );
+          return;
+        } else if (hasDuplicates(form.questions[i].blanks)) {
+          toast.error(
+            "One of the blank option has a duplicate value in the Cloze type question. Please remove dublicate value"
+          );
+          return;
+        }
+      } else if (form.questions[i].type === "comprehension") {
+        if (form.questions[i].passage.trim() === "") {
+          toast.error(
+            "one of the passeage is empty in comprehension question."
+          );
+          return;
+        } else if (form.questions[i].questions.length === 0) {
+          toast.error(
+            "you must add atleast one question in comprehension question."
+          );
+          return;
+        } else if (form.questions[i].questions.some((e) => e.question === "")) {
+          toast.error(
+            "one of your question in comprehensive type questions is empty. Please add question"
+          );
+          return;
+        } else if (
+          form.questions[i].questions.some((e) =>
+            e.options.some((option) => option.trim() === "")
+          )
+        ) {
+          toast.error(
+            "One of your options in comprehensive type questions is empty. Please add an option."
+          );
+          return;
+        } else if (
+          form.questions[i].questions.some((e) => e.correctAnswer === "")
+        ) {
+          toast.error(
+            "One of the correct answer is not selected in comprehensive type questions. Please add correct answer also."
           );
           return;
         }

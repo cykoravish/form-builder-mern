@@ -88,4 +88,20 @@ export const submitFormResponse = async (req, res) => {
   }
 };
 
+export const deleteForm = async (req,res)=>{
+  console.log("test 1")
+  const { id } = req.params;
+  try {
+    const deletedForm = await Form.findByIdAndDelete(id);
+    if (!deletedForm) {
+      return res.status(404).json({ message: "Form not found" });
+    }
+
+    res.status(200).json({ message: "Form deleted successfully", form: deletedForm });
+  } catch (error) {
+    console.error("Error deleting form:", error);
+    res.status(500).json({ message: "Failed to delete form", error: error.message });
+  }
+}
+
 console.log("Form controller updated with submitFormResponse function");

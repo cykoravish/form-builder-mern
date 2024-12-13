@@ -5,6 +5,7 @@ import Header from './components/Header'
 import FormBuilder from './pages/FormBuilder'
 import FormList from './pages/FormList'
 import FormPreview from './pages/FormPreview'
+import TestComplete from './pages/TestComplete'
 
 const App: React.FC = () => {
   return (
@@ -16,6 +17,7 @@ const App: React.FC = () => {
             <Route path="/" element={<FormList />} />
             <Route path="/builder" element={<FormBuilder />} />
             <Route path="/preview/:formId" element={<FormPreview />} />
+            <Route path="/test-submitted" element={<TestComplete />} />
           </Routes>
         </main>
         <Toaster position="bottom-right" />

@@ -8,6 +8,7 @@ export const hasEmptyElement = (arr: any[]): boolean =>
 export const hasEmptyCategory = (arr: any[]): boolean =>
   arr.some((item) => item.category === "");
 
+
 export const hasDuplicateText = (arr: any[]): boolean => {
   const texts = arr.map((item) => item.text);
   return new Set(texts).size !== texts.length;

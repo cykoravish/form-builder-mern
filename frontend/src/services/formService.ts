@@ -13,6 +13,11 @@ export const createForm = async (form: Form): Promise<Form> => {
   return response.data
 }
 
+export const deleteForm = async (id) => {
+  const response = await axios.delete(`${API_URL}/${id}`)
+  return response.data
+}
+
 export const getFormById = async (id: string): Promise<Form> => {
   const response = await axios.get(`${API_URL}/${id}`)
   return response.data

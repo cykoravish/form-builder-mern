@@ -2,3 +2,5 @@
 =>validate if there is any dublicate blank in all category
 =>make sure form must not submit if the data is invalid
 =>validation on categorize ques dome now do the validation on cloze and comprehensive and than preview form.
+=>put questiom number on question
+=>toast shout cut on click and modify its look

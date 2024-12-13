@@ -126,7 +126,8 @@ const ClozeEditor: React.FC<ClozeEditorProps> = ({ question, onUpdate }) => {
       toast.error('Please add more [...] placeholders in the text before adding new blanks.')
       return
     }
-
+// console.log("placeholderCount: ", placeholderCount)
+// console.log("localBlanks: ", localBlanks.length)
     const newBlanks = [...localBlanks, '']
     setLocalBlanks(newBlanks)
     onUpdate({
