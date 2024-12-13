@@ -7,7 +7,7 @@ interface ComprehensionEditorProps {
   onUpdate: (question: ComprehensionQuestion) => void;
 }
 
-const ComprehensionEditor: React.FC<ComprehensionEditorProps> = ({
+export const ComprehensionEditor: React.FC<ComprehensionEditorProps> = ({
   question,
   onUpdate,
 }) => {
@@ -161,4 +161,3 @@ const ComprehensionEditor: React.FC<ComprehensionEditorProps> = ({
   );
 };
 
-export default ComprehensionEditor;

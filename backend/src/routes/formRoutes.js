@@ -11,5 +11,4 @@ router.delete('/:id',deleteForm)
 
 export default router
 
-console.log('Form routes updated with submitFormResponse endpoint')
 
