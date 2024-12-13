@@ -12,6 +12,11 @@ export default defineConfig({
   esbuild: {
     loader: 'tsx'
   },
+  optimizeDeps: {
+    esbuildOptions: {
+      target: 'es2020'
+    }
+  },
   server: {
     proxy: {
       '/api': 'http://localhost:5000'

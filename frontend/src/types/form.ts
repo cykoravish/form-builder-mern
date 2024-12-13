@@ -1,39 +1,40 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export type QuestionType = 'categorize' | 'cloze' | 'comprehension'
 
 export interface CategorizeQuestion {
-  _id: any
-  type: 'categorize'
-  question: string
-  categories: string[]
-  items: { text: string; category: string }[]
+  _id?: any
+  type?: 'categorize'
+  question?: string
+  categories?: string[]
+  items?: { text: string; category: string }[]
 }
 
 export interface ClozeQuestion {
-  _id: any
-  type: 'cloze'
-  text: string
-  blanks: string[]
+  _id?: any
+  type?: 'cloze'
+  text?: string
+  blanks?: string[]
 }
 
 export interface ComprehensionQuestion {
-  _id: any
-  type: 'comprehension'
-  passage: string
-  questions: { question: string; options: string[]; correctAnswer: string }[]
+  _id?: any
+  type?: 'comprehension'
+  passage?: string
+  questions?: { question: string; options: string[]; correctAnswer: string }[]
 }
 
 export type FormField = CategorizeQuestion | ClozeQuestion | ComprehensionQuestion
 
 export interface Form {
-  createdAt: string | number | Date
+  createdAt?: string | number | Date
   _id?: string
-  title: string
+  title?: string
   headerImage?: string
-  questions: FormField[]
+  questions?: FormField[]
 }
 
 export interface FormResponse {
-  formId: string
-  answers: Record<string, any>[]
+  formId?: string
+  answers?: Record<string, any>[]
 }
 

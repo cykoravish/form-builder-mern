@@ -2,7 +2,7 @@ import React from "react";
 import { FormField, QuestionType } from "../types/form";
 import CategorizeEditor from "./question-editors/CategorizeEditor";
 import ClozeEditor from "./question-editors/ClozeEditor";
-import { ComprehensionEditor } from "./question-editors/ComprehensionEditor.tsx";
+import { ComprehensionEditor } from "@/components/question-editors/ComprehensionEditor";
 
 interface QuestionEditorProps {
   question: FormField;
