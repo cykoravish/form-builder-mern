@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_URL = '/api/forms'
+const API_URL = 'https://api.relyzers.shop/api/forms'
 
 export const getFormList = async () => {
   const response = await axios.get(API_URL)
